@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+spec:
+  serviceName: mongodb
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      securityContext:
+        runAsUser: 0
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: keyfile
+          secret:
+            secretName: mongodb-keyfile
+            defaultMode: 0400
+      containers:
+        - name: mongo
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["mongod"]
+          args:
+            - "--bind_ip_all"
+            - "--replSet=rs0"
+            - "--auth"
+            - "--keyFile=/etc/mongo-keyfile/key"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+            - name: keyfile
+              mountPath: /etc/mongo-keyfile
+              readOnly: true
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: {{ .Values.auth.rootUser | quote }}
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-auth
+                  key: root-password

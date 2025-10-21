@@ -1,0 +1,20 @@
+{{- $name := "mongodb" -}}
+{{- $replicas := .Values.replicaCount | int -}}
+{{- range $i, $_ := until $replicas }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-{{ $i }}
+  labels:
+    app: {{ $name }}
+spec:
+  type: "ClusterIP"
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017
+  selector:
+    statefulset.kubernetes.io/pod-name: {{ $name }}-{{ $i }}
+---
+{{- end }}
+

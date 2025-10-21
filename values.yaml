@@ -1,0 +1,11 @@
+replicaCount: 2
+
+image:
+  registry: docker.io
+  repository: mongo
+  tag: 7.0.5
+
+auth:
+  enabled: true
+  rootUser: "root"
+  rootPassword: "bf430fd8d529b5ab5ce639fa33"
