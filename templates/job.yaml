@@ -1,0 +1,63 @@
+{{- if .Values.replicaSet.enabled -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-init-replicaset-{{ .Release.Revision }}
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      annotations:
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}-init-replicaset
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/bash
+        args:
+          - -c
+          - |
+            #!/bin/bash
+            set -euo pipefail;
+            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}";
+            MASTER_NODE="{{ .Release.Name }}-{{ .Chart.Name }}-0.$HEADLESS_SVC";
+            AUTH_DATA="{{ .Values.auth.rootUser }}:$MONGO_INITDB_ROOT_PASSWORD";
+            CONNECT_STRING_MASTER="mongodb://$AUTH_DATA@$MASTER_NODE/admin";
+
+            DB_PING_CMD='db.runCommand({ping: 1})';
+            RS_CHECK_CMD='rs.status()';
+            RS_INIT_CMD='rs.initiate({
+              _id: "{{ .Values.replicaSet.name }}",
+              members: [
+                {{- $name := printf "%s-%s" .Release.Name .Chart.Name -}}
+                {{- $replicas := .Values.replicaCount | int -}}
+                {{- range $i, $_ := until $replicas }}
+                  { _id: {{ $i }}, host: "{{ $name }}-{{ $i }}.{{ $name }}:27017" }{{- if lt (add1 $i) $replicas }},{{ end }}
+                {{- end }}
+              ]
+            })';
+
+            SLEEP_TIME='2';
+
+            until mongosh "$CONNECT_STRING_MASTER" --eval "$DB_PING_CMD" > /dev/null; do
+                echo "Waiting master to become ready, sleeping $SLEEP_TIME s..";
+                sleep "$SLEEP_TIME";
+            done
+
+            if ! mongosh "$CONNECT_STRING_MASTER" --eval "$RS_CHECK_CMD" > /dev/null; then
+                echo "Initializing replicaset..";
+                mongosh "$CONNECT_STRING_MASTER" --eval "$RS_INIT_CMD" > /dev/null;
+            fi
+        env:
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-auth
+                key: root-password
+      restartPolicy: Never
+{{- end -}}

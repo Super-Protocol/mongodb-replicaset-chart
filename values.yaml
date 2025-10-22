@@ -1,5 +1,10 @@
 replicaCount: 2
 
+replicaSet:
+  enabled: true
+  name: "rs0"
+  key: "WKj2OTeNe/GfrivGuuBO1oMp"
+
 image:
   registry: docker.io
   repository: mongo
@@ -9,3 +14,12 @@ auth:
   enabled: true
   rootUser: "root"
   rootPassword: "bf430fd8d529b5ab5ce639fa33"
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  size: 500Mi
+  accessModes: ["ReadWriteOnce"]
+  storageClass:

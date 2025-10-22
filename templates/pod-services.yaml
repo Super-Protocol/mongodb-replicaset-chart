@@ -1,20 +1,19 @@
-{{- $name := "mongodb" -}}
 {{- $replicas := .Values.replicaCount | int -}}
 {{- range $i, $_ := until $replicas }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $name }}-{{ $i }}
+  name: {{ $.Release.Name }}-{{ $.Chart.Name }}-{{ $i }}
   labels:
-    app: {{ $name }}
+    app: {{ $.Release.Name }}-{{ $.Chart.Name }}
+  namespace: {{ $.Release.Namespace }}
 spec:
-  type: "ClusterIP"
+  type: {{ $.Values.service.type }}
   ports:
     - name: mongo
       port: 27017
       targetPort: 27017
   selector:
-    statefulset.kubernetes.io/pod-name: {{ $name }}-{{ $i }}
+    statefulset.kubernetes.io/pod-name: {{ $.Release.Name }}-{{ $.Chart.Name }}-{{ $i }}
 ---
 {{- end }}
-
