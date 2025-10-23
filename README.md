@@ -1,6 +1,6 @@
 ## Install
 ```bash
-helm -n justtest2 upgrade -i test mongodb-replicaset-chart --create-namespace
+helm -n justtest2 upgrade -i test oci://ghcr.io/super-protocol/charts/mongodb-replicaset-chart:0.0.0 --create-namespace
 ```
 
 ## Test
