@@ -43,4 +43,4 @@ jobs:
 
       - name: "Upload Helm chart"
         run: |
-          helm push dist/mongodb-${IMAGE_TAG}.tgz oci://ghcr.io/${{ github.repository }}/charts
+          helm push dist/mongodb-replicaset-chart-${IMAGE_TAG}.tgz oci://ghcr.io/Super-Protocol
