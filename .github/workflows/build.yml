@@ -1,0 +1,46 @@
+name: package-helm-chart
+
+on:
+  push:
+    branches:
+      - dev
+    tags:
+      - "*"
+
+jobs:
+  package:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
+      - name: "Set image tag"
+        id: tag
+        run: |
+          IMAGE_TAG="0.0.0"
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+              REF=${{ github.ref }};
+              TAG_FULL=${REF#refs/*/};
+              IMAGE_TAG=${TAG_FULL//\//_};
+          fi
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: "Login to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: "Package Helm chart"
+        run: |
+          helm dependency update ./helm
+          helm package helm -d dist --version=${IMAGE_TAG}
+
+      - name: "Upload Helm chart"
+        run: |
+          helm push dist/mongodb-${IMAGE_TAG}.tgz oci://ghcr.io/${{ github.repository }}/charts
