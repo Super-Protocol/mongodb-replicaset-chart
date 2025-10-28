@@ -4,16 +4,26 @@ replicaSet:
   enabled: true
   name: "rs0"
   key: "WKj2OTeNe/GfrivGuuBO1oMp"
+  # keyVault: "vault:develop/data/rocketboy-mongodb#mongodbReplicaKey"
 
 image:
   registry: docker.io
   repository: mongo
   tag: 7.0.5
 
+vault:
+  enabled: false
+  address: https://vault.superprotocol.io
+  path: kubernetes_front
+  service_account:
+    name: vault
+    create: false
+
 auth:
   enabled: true
   rootUser: "root"
   rootPassword: "bf430fd8d529b5ab5ce639fa33"
+  # rootPasswordVault: "vault:develop/data/rocketboy-mongodb#mongodbRootPassword"
 
 service:
   type: ClusterIP
