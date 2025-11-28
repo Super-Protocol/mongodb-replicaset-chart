@@ -3,10 +3,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-init-replicaset-{{ .Release.Revision }}
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-init-replicaset
   labels:
     app: {{ .Release.Name }}-{{ .Chart.Name }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    "argocd.argoproj.io/hook": PostSync
+    "argocd.argoproj.io/hook-delete-policy": HookSucceeded
+    "argocd.argoproj.io/sync-wave": "-5"
 spec:
   backoffLimit: 1
   template:
