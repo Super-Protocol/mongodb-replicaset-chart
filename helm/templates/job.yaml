@@ -15,6 +15,7 @@ spec:
   template:
     metadata:
       annotations:
+        "argocd.argoproj.io/hook-delete-policy": HookSucceeded
     spec:
       containers:
       - name: {{ .Chart.Name }}-init-replicaset
