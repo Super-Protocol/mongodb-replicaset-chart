@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-headless
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Release.Name }}-{{ .Chart.Name }}
