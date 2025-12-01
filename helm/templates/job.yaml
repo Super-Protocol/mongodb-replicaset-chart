@@ -15,7 +15,6 @@ spec:
   template:
     metadata:
       annotations:
-        "argocd.argoproj.io/hook-delete-policy": HookSucceeded
     spec:
       containers:
       - name: {{ .Chart.Name }}-init-replicaset
@@ -28,7 +27,7 @@ spec:
           - |
             #!/bin/bash
             set -euo pipefail;
-            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}-headless";
+            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}";
             MASTER_NODE="{{ .Release.Name }}-{{ .Chart.Name }}-0.$HEADLESS_SVC";
             AUTH_DATA="{{ .Values.auth.rootUser }}:$MONGO_INITDB_ROOT_PASSWORD";
             CONNECT_STRING_MASTER="mongodb://$AUTH_DATA@$MASTER_NODE/admin";
