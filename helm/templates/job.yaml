@@ -28,7 +28,7 @@ spec:
           - |
             #!/bin/bash
             set -euo pipefail;
-            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}";
+            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}-headless";
             MASTER_NODE="{{ .Release.Name }}-{{ .Chart.Name }}-0.$HEADLESS_SVC";
             AUTH_DATA="{{ .Values.auth.rootUser }}:$MONGO_INITDB_ROOT_PASSWORD";
             CONNECT_STRING_MASTER="mongodb://$AUTH_DATA@$MASTER_NODE/admin";
