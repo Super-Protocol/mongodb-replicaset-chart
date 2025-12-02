@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  name: {{ template "fullname" $ }}
   namespace: {{ .Release.Namespace }}
 spec:
-  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}
+  serviceName: {{ template "fullname" $ }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Chart.Name }}
+      app: {{ template "fullname" $ }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Chart.Name }}
+        app: {{ template "fullname" $ }}
     spec:
       volumes:
         {{- if not .Values.persistence.enabled }}
-        - name: {{ .Release.Name }}-{{ .Chart.Name }}-data
+        - name: {{ template "fullname" $ }}-data
           emptyDir: {}
         {{- end }}
         - name: keyfile
           secret:
-            secretName: {{ .Release.Name }}-{{ .Chart.Name }}-keyfile
+            secretName: {{ template "fullname" $ }}-keyfile
       containers:
         - name: mongo
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -43,7 +43,7 @@ spec:
           ports:
             - containerPort: 27017
           volumeMounts:
-            - name: {{ .Release.Name }}-{{ .Chart.Name }}-data
+            - name: {{ template "fullname" $ }}-data
               mountPath: /data/db
             - name: keyfile
               mountPath: /etc/mongo-keyfile
@@ -54,12 +54,12 @@ spec:
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-auth
+                  name: {{ template "fullname" $ }}-auth
                   key: root-password
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ .Release.Name }}-{{ .Chart.Name }}-data
+        name: {{ template "fullname" $ }}-data
       spec:
         accessModes: {{ .Values.persistence.accessModes }}
         storageClassName: {{ .Values.persistence.storageClass }}

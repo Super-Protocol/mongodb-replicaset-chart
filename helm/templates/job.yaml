@@ -3,9 +3,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-init
+  name: {{ template "fullname" $ }}-init
   labels:
-    app: {{ .Release.Name }}-{{ .Chart.Name }}
+    app: {{ template "fullname" $ }}
   namespace: {{ .Release.Namespace }}
   annotations:
     "argocd.argoproj.io/hook": PostSync
@@ -17,7 +17,7 @@ spec:
       annotations:
     spec:
       containers:
-      - name: {{ .Chart.Name }}-init-replicaset
+      - name: {{ template "fullname" $ }}-init-replicaset
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: IfNotPresent
         command:
@@ -27,8 +27,8 @@ spec:
           - |
             #!/bin/bash
             set -euo pipefail;
-            HEADLESS_SVC="{{ .Release.Name }}-{{ .Chart.Name }}";
-            MASTER_NODE="{{ .Release.Name }}-{{ .Chart.Name }}-0.$HEADLESS_SVC";
+            HEADLESS_SVC="{{ template "fullname" $ }}";
+            MASTER_NODE="{{ template "fullname" $ }}-0.$HEADLESS_SVC";
             AUTH_DATA="{{ .Values.auth.rootUser }}:$MONGO_INITDB_ROOT_PASSWORD";
             CONNECT_STRING_MASTER="mongodb://$AUTH_DATA@$MASTER_NODE/admin";
 
@@ -37,7 +37,7 @@ spec:
             RS_INIT_CMD='rs.initiate({
               _id: "{{ .Values.replicaSet.name }}",
               members: [
-                {{- $name := printf "%s-%s" .Release.Name .Chart.Name -}}
+                {{- $name := include "fullname" $ -}}
                 {{- $replicas := .Values.replicaCount | int -}}
                 {{- range $i, $_ := until $replicas }}
                   { _id: {{ $i }}, host: "{{ $name }}-{{ $i }}.{{ $name }}:27017" }{{- if lt (add1 $i) $replicas }},{{ end }}
@@ -60,7 +60,7 @@ spec:
           - name: MONGO_INITDB_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Release.Name }}-{{ .Chart.Name }}-auth
+                name: {{ template "fullname" $ }}-auth
                 key: root-password
       restartPolicy: Never
 {{- end -}}
