@@ -7,6 +7,9 @@ metadata:
   labels:
     app: {{ template "fullname" $ }}
   namespace: {{ $.Release.Namespace }}
+  annotations:
+    "argocd.argoproj.io/hook": PreSync
+    "argocd.argoproj.io/sync-wave": "-5"
 spec:
   type: {{ $.Values.service.type }}
   ports:
