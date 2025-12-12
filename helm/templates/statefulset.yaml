@@ -3,6 +3,9 @@ kind: StatefulSet
 metadata:
   name: {{ template "fullname" $ }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    "argocd.argoproj.io/hook": Sync
+    "argocd.argoproj.io/sync-wave": "1"
 spec:
   serviceName: {{ template "fullname" $ }}
   replicas: {{ .Values.replicaCount }}
@@ -10,9 +13,6 @@ spec:
     matchLabels:
       app: {{ template "fullname" $ }}
   template:
-    annotations:
-      "argocd.argoproj.io/hook": Sync
-      "argocd.argoproj.io/sync-wave": "1"
     metadata:
       labels:
         app: {{ template "fullname" $ }}
