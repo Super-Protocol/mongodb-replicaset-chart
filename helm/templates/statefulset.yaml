@@ -10,6 +10,9 @@ spec:
     matchLabels:
       app: {{ template "fullname" $ }}
   template:
+    annotations:
+      "argocd.argoproj.io/hook": Sync
+      "argocd.argoproj.io/sync-wave": "0"
     metadata:
       labels:
         app: {{ template "fullname" $ }}
