@@ -9,7 +9,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   annotations:
     "argocd.argoproj.io/hook": Sync
-    "argocd.argoproj.io/sync-wave": "2"
+    "argocd.argoproj.io/sync-wave": "1"
 spec:
   type: {{ $.Values.service.type }}
   ports:
