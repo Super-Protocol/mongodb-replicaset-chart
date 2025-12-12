@@ -8,8 +8,8 @@ metadata:
     app: {{ template "fullname" $ }}
   namespace: {{ .Release.Namespace }}
   annotations:
-    "argocd.argoproj.io/hook": Sync
-    "argocd.argoproj.io/sync-wave": "2"
+    "argocd.argoproj.io/hook": PreSync
+    "argocd.argoproj.io/sync-wave": "-4"
 spec:
   backoffLimit: 1
   template:
