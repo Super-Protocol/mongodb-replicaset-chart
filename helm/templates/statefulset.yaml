@@ -43,7 +43,7 @@ spec:
           ports:
             - containerPort: 27017
           volumeMounts:
-            - name: {{ template "fullname" $ }}-data
+            - name: data-{{ template "fullname" $ }}
               mountPath: /data/db
             - name: keyfile
               mountPath: /etc/mongo-keyfile
